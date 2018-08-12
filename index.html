@@ -7,140 +7,140 @@
     <meta name="author" content="Seth Robinson">
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/css-toggle-switch@latest/dist/toggle-switch.css"> 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Pacifico">
 </head>
 <body>
-    <div id="container"></div>
-    <div id="controls-wrapper">
-        <fieldset>
-                <legend>Mode</legend>
-                <div class="switch-toggle switch-candy-yellow">
-                <input id="draw" name="view" type="radio" autofocus checked>
-                <label for="draw" onclick="">Draw</label>
-            
-                <input id="shade" name="view" type="radio">
-                <label for="shade" onclick="">Shade</label>
-            
-                <input id="color" name="view" type="radio">
-                <label for="color" onclick="">Color</label>
-            
-                <a></a>
-
-        </fieldset>
-        <button class="button" type="button" id="reRender">Re-render Grid</button>
-    </div>
+    <div id="frame">
+        <div id="title">
+            <p>Etch-a-Sketch&reg;</p>
+        </div> <!-- #title -->
+        <div id="wrapper">
+            <div id="grid"></div>
+            <div id="controls">
+                <div class="knob" id="knob-1"></div> 
+                <fieldset>
+                    <legend>Mode</legend>
+                    <div class="switch-toggle switch-candy-yellow">
+                        <input id="draw" name="view" type="radio" autofocus checked>
+                        <label for="draw" onclick="">Draw</label>
+                        <input id="shade" name="view" type="radio">
+                        <label for="shade" onclick="">Shade</label>          
+                        <input id="color" name="view" type="radio">
+                        <label for="color" onclick="">Color</label> 
+                        <a></a>
+                    </div> <!-- .switch-toggle-->
+                </fieldset>  
+                <button class="button" type="button" id="shake">Shake!</button>
+                <div class="knob" id="knob-2"></div> 
+            </div> <!-- #controls-->
+        </div> <!-- #wrapper-->
+    </div> <!-- #frame -->
 </body>
 <script>
+    const grid = document.querySelector("#grid");
+    
+    const modes = document.querySelectorAll("input");
+    modes.forEach((mode) => {
+        mode.addEventListener("click", toggleMode)
+    });
 
-    // need to get drawCell(); to load on default
+    function toggleMode(e) {
+        const cells = document.querySelectorAll(".cells");
+        if (e.target.id === "shade") {
+            cells.forEach((cell) => {
+                cell.removeEventListener("mouseover", drawCell)
+                cell.removeEventListener("mouseover", colorCell)
+                cell.addEventListener("mouseover", shadeCell)
+            });        
+            shadeCell(e);
+        } else if (e.target.id === "color") {
+            cells.forEach((cell) => {
+                cell.removeEventListener("mouseover", drawCell)
+                cell.removeEventListener("mouseover", shadeCell)
+                cell.addEventListener("mouseover", colorCell)
+            });     
+            colorCell(e);
+        } else {
+            cells.forEach((cell) => {
+                cell.removeEventListener("mouseover", shadeCell)
+                cell.removeEventListener("mouseover", colorCell)
+                cell.addEventListener("mouseover", drawCell)
+            });     
+            document.querySelector("#draw").focus();
+        }
+    }
 
-        const container = document.querySelector("#container");
-        
-        const modes = document.querySelectorAll("input");
-        modes.forEach((mode) => {
-            mode.addEventListener("click", toggleMode)
+    function renderCells() {
+        grid.style.grid  = "repeat(16, auto) / repeat(16, auto)";
+        for (let i = 1; i <= Math.pow(16, 2); i++) {
+            let newDiv = document.createElement("div");
+            newDiv.classList.add("cells");
+            newDiv.setAttribute("id", `cell-${i}`);
+            newDiv.style.backgroundColor = "#ffffff";
+            grid.appendChild(newDiv);
+        }
+    }
+    
+    renderCells();
+
+    const cells = document.querySelectorAll(".cells");
+        cells.forEach((cell) => {
+            cell.addEventListener("mouseover", drawCell)
         });
 
-        function toggleMode(e) {
-            const cells = document.querySelectorAll(".cells");
-            if (e.target.id === "shade") {
-                cells.forEach((cell) => {
-                    cell.removeEventListener("mouseover", drawCell)
-                    cell.removeEventListener("mouseover", colorCell)
-                    cell.addEventListener("mouseover", shadeCell)
-                });        
-                shadeCell(e);
-            } else if (e.target.id === "color") {
-                cells.forEach((cell) => {
-                    cell.removeEventListener("mouseover", drawCell)
-                    cell.removeEventListener("mouseover", shadeCell)
-                    cell.addEventListener("mouseover", colorCell)
-                });     
-                colorCell(e);
-            } else {
-                cells.forEach((cell) => {
-                    cell.removeEventListener("mouseover", shadeCell)
-                    cell.removeEventListener("mouseover", colorCell)
-                    cell.addEventListener("mouseover", drawCell)
-                });     
-                document.querySelector("#draw").focus();
-            }
-        }
+    function drawCell(e) {
+        let cellToDraw = document.querySelector(`#${e.target.id}`);
+        cellToDraw.style.backgroundColor = "#000000";
+    }
 
-        function renderCells() {
-            container.style.grid  = "repeat(16, auto) / repeat(16, auto)";
-            for (let i = 1; i <= Math.pow(16, 2); i++) {
-                let newDiv = document.createElement("div");
-                newDiv.classList.add("cells");
-                newDiv.setAttribute("id", `cell-${i}`);
-                newDiv.style.backgroundColor = "#ffffff";
-                container.appendChild(newDiv);
-         }
-      }
-      
-        renderCells();
-
+    const button = document.querySelector("#shake");
+    button.addEventListener("click", reRenderCells);
+    
+    function clearCells() {
         const cells = document.querySelectorAll(".cells");
-            cells.forEach((cell) => {
-                cell.addEventListener("mouseover", drawCell)
-            });
+        cells.forEach((cell) => {
+            cell.remove();
+        })
+    }
 
-        function drawCell(e) {
-            let cellToDraw = document.querySelector(`#${e.target.id}`);
-            cellToDraw.style.backgroundColor = "#000000";
+    function reRenderCells(e) {
+        clearCells();
+        let gridDims = "";
+        while (true) {
+          if (!gridDims) {
+            gridDims = +prompt("Time to shake it up!\nLet's render a new grid. How many squares per side?", "Suggested max: 100");
+          } else break;
         }
-
-        const button = document.querySelector("#reRender");
-        button.addEventListener("click", reRenderCells);
-      
-        function clearCells() {
-            const cells = document.querySelectorAll(".cells");
-            cells.forEach((cell) => {
-                cell.remove();
-            })
+        grid.style.grid  = `repeat(${gridDims}, auto) / repeat(${gridDims}, auto)`;
+        let totalCells = Math.pow(gridDims, 2);
+        for (let i = 1; i <= totalCells; i++) {
+            let newDiv = document.createElement("div");
+            newDiv.classList.add("cells");
+            newDiv.setAttribute("id", `cell-${i}`);
+            newDiv.style.backgroundColor = "#ffffff";
+            grid.appendChild(newDiv);
         }
+        document.querySelector("#draw").click(); //or currently selected radio button, so mode doesn't change? 
+    }
 
-        function reRenderCells(e) {
-            clearCells();
-            let gridDims = +prompt("How many squares per side?", "0");
-            container.style.grid  = `repeat(${gridDims}, auto) / repeat(${gridDims}, auto)`;
-            let totalCells = Math.pow(gridDims, 2);
-            for (let i = 1; i <= totalCells; i++) {
-                let newDiv = document.createElement("div");
-                newDiv.classList.add("cells");
-                newDiv.setAttribute("id", `cell-${i}`);
-                newDiv.style.backgroundColor = "#ffffff";
-                container.appendChild(newDiv);
-            }
-            document.querySelector("#draw").click(); //or currently selected radio button, so mode doesn't change? 
+    function colorCell(e) {
+        console.log(e);
+        let cellToColor = document.querySelector(`#${e.target.id}`);
+        let randomColor = Math.floor(Math.random()*16777215).toString(16);
+        cellToColor.style.backgroundColor = `#${randomColor}`;
+    }
+
+    function shadeCell(e) {
+        let cellToShade = document.querySelector(`#${e.target.id}`);
+        console.log(cellToShade);
+        let currentRGB = ((window.getComputedStyle(cellToShade, null).getPropertyValue("background-color")).slice(4, -11));
+        if (currentRGB < 100) {
+            currentRGB = ((window.getComputedStyle(cellToShade, null).getPropertyValue("background-color")).slice(4, -9));
         }
-
-        function colorCell(e) {
-            console.log(e);
-            let cellToColor = document.querySelector(`#${e.target.id}`);
-            let randomColor = Math.floor(Math.random()*16777215).toString(16);
-            cellToColor.style.backgroundColor = `#${randomColor}`;
-        }
-
-       function shadeCell(e) {
-            let cellToShade = document.querySelector(`#${e.target.id}`);
-            console.log(cellToShade);
-            let currentRGB = ((window.getComputedStyle(cellToShade, null).getPropertyValue("background-color")).slice(4, -11));
-            if (currentRGB < 100) {
-                currentRGB = ((window.getComputedStyle(cellToShade, null).getPropertyValue("background-color")).slice(4, -9));
-            }
-            let newRGB = currentRGB - 25.5;
-            let shade = `rgb(${newRGB}, ${newRGB}, ${newRGB})`;
-            cellToShade.style.backgroundColor = `${shade}`;
-      }
-
-  /* need default params 16x16 (so need to remove all children before the following function can run--similar to forEach button remove in rps)
-      (1a) let GridDims = +prompt(How many squares per side?)
-      (1b) for (let i = 1; i <= Math.pow(gridDims, 2)); i++): create div, assign id=`cell-${i}`, set background-color to white, append to container div
-      (1c) change #grid-container CSS to`grid: repeat(${gridDims}, auto) / repeat(${gridDims}, auto)`; 
-      (2) querySelectorAll; assign eventListener (when cursor leaves cell) with forEach loop
-      (3) pass (e.target.id) to indicate cell number to color
-        let randomColor = Math.floor(Math.random()*16777215).toString(16); change div background-color to (`#${randomColor}`)
-  */
+        let newRGB = currentRGB - 25.5;
+        let shade = `rgb(${newRGB}, ${newRGB}, ${newRGB})`;
+        cellToShade.style.backgroundColor = `${shade}`;
+    }
 
 </script>
 </html>
