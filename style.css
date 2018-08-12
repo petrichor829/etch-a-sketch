@@ -8,7 +8,7 @@ body {
     height: 500px;
     margin: 50px auto;
     background-color: darkgrey;
-    grid: repeat(0, auto) / repeat(0, auto); 
+    grid: repeat(0, auto) / repeat(0, auto);
     grid-row-gap: 1px;
     grid-column-gap: 1px;
     border: 1px solid #000000;
@@ -18,3 +18,23 @@ body {
     background-color: #ffffff;
     cursor: crosshair;
 }
+
+#controls-wrapper {
+    width: 500px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+fieldset {
+    font-family: Arial, Helvetica, sans-serif;
+    width: 200px;
+    order: 1;
+}
+
+button {
+    order: 2;
+}
+
+/* https://github.com/daneden/animate.css for shake animation */
