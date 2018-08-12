@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Etch-a-Sketch</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Seth Robinson">
+    <link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+    <div id="container"></div>
+    <fieldset>
+            <legend>Mode</legend>
+            <div class="switch-toggle switch-candy-yellow">
+              <input id="draw" name="view" type="radio" checked>
+              <label for="draw" onclick="">Draw</label>
+          
+              <input id="shade" name="view" type="radio">
+              <label for="shade" onclick="">Shade</label>
+          
+              <input id="color" name="view" type="radio">
+              <label for="color" onclick="">Color</label>
+          
+              <a></a>
+            </div>
+    </fieldset>
+</body>
+<script>
+
+    // need to get drawCell(); to load on default
+
+        const container = document.querySelector("#container");
+        
+        const modes = document.querySelectorAll("input");
+        modes.forEach((mode) => {
+            mode.addEventListener("click", toggleMode)
+        });
+
+        /*
+        const cells = document.querySelectorAll(".cells");
+        cells.forEach((cell) => {
+            cell.addEventListener("mouseover", drawCell)
+        });
+      
+        */
+
+        function toggleMode(e) {
+            const cells = document.querySelectorAll(".cells");
+            if (e.target.id === "shade") {
+                cells.forEach((cell) => {
+                    cell.removeEventListener("mouseover", drawCell)
+                    cell.removeEventListener("mouseover", colorCell)
+                    cell.addEventListener("mouseover", shadeCell)
+                });        
+                shadeCell(e);
+            } else if (e.target.id === "color") {
+                cells.forEach((cell) => {
+                    cell.removeEventListener("mouseover", drawCell)
+                    cell.removeEventListener("mouseover", shadeCell)
+                    cell.addEventListener("mouseover", colorCell)
+                });     
+                colorCell(e);
+            } else {
+                cells.forEach((cell) => {
+                    cell.removeEventListener("mouseover", shadeCell)
+                    cell.removeEventListener("mouseover", colorCell)
+                    cell.addEventListener("mouseover", drawCell)
+                });     
+                drawCell(e);
+            }
+        }
+
+      function renderCells() {
+            container.style.grid  = "repeat(16, auto) / repeat(16, auto)";
+            for (let i = 1; i <= Math.pow(16, 2); i++) {
+                let newDiv = document.createElement("div");
+                newDiv.classList.add("cells");
+                newDiv.setAttribute("id", `cell-${i}`);
+                newDiv.style.backgroundColor = "#ffffff";
+                container.appendChild(newDiv);
+         }
+      }
+
+       function reRenderCells() {
+            let gridDims = +prompt("How many squares per side?");
+            container.style.grid  = `repeat(${gridDims}, auto) / repeat(${gridDims}, auto)`;
+            let totalCells = Math.pow(gridDims, 2);
+            for (let i = 1; i <= totalCells; i++) {
+                let nextDiv = document.createElement("div");
+                nextDiv.classList.add("cells");
+                nextDiv.setAttribute("id", `cell-${i}`);
+                nextDiv.style.backgroundColor = "#ffffff";
+                container.appendChild(nextDiv);
+            }
+        }
+
+      reRenderCells();
+      // see if it's okay to call it "newDiv" in both functions
+
+   
+        function drawCell(e) {
+            let cellToDraw = document.querySelector(`#${e.target.id}`);
+            cellToDraw.style.backgroundColor = "#000000";
+        }
+
+        function colorCell(e) {
+            console.log(e);
+            let cellToColor = document.querySelector(`#${e.target.id}`);
+            let randomColor = Math.floor(Math.random()*16777215).toString(16);
+            cellToColor.style.backgroundColor = `#${randomColor}`;
+        }
+
+       function shadeCell(e) {
+           /*
+            cells.forEach((cell) => {
+                cell.addEventListener("mouseover", shadeCell)
+            });
+            */
+            let cellToShade = document.querySelector(`#${e.target.id}`);
+            console.log(cellToShade);
+            let currentRGB = ((window.getComputedStyle(cellToShade, null).getPropertyValue("background-color")).slice(4, -11));
+            if (currentRGB < 100) {
+                currentRGB = ((window.getComputedStyle(cellToShade, null).getPropertyValue("background-color")).slice(4, -9));
+            }
+            let newRGB = currentRGB - 25.5;
+            let shade = `rgb(${newRGB}, ${newRGB}, ${newRGB})`;
+            cellToShade.style.backgroundColor = `${shade}`;
+      }
+
+  /* need default params 16x16 (so need to remove all children before the following function can run--similar to forEach button remove in rps)
+      (1a) let GridDims = +prompt(How many squares per side?)
+      (1b) for (let i = 1; i <= Math.pow(gridDims, 2)); i++): create div, assign id=`cell-${i}`, set background-color to white, append to container div
+      (1c) change #grid-container CSS to`grid: repeat(${gridDims}, auto) / repeat(${gridDims}, auto)`; 
+      (2) querySelectorAll; assign eventListener (when cursor leaves cell) with forEach loop
+      (3) pass (e.target.id) to indicate cell number to color
+        let randomColor = Math.floor(Math.random()*16777215).toString(16); change div background-color to (`#${randomColor}`)
+  */
+
+</script>
+</html>
