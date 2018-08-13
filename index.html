@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/css-toggle-switch@latest/dist/toggle-switch.css"> 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Pacifico">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.5.2/animate.min.css">
 </head>
 <body>
     <div id="frame">
@@ -15,17 +16,18 @@
             <p>Etch-a-Sketch&reg;</p>
         </div> <!-- #title -->
         <div id="wrapper">
+            <div id="mouseover-disabler"></div>
             <div id="grid"></div>
             <div id="controls">
                 <div class="knob" id="knob-1"></div> 
                 <fieldset>
                     <legend>Mode</legend>
                     <div class="switch-toggle switch-candy-yellow">
-                        <input id="draw" name="view" type="radio" autofocus checked>
+                        <input id="draw" class="mode" name="view" type="radio" autofocus checked>
                         <label for="draw" onclick="">Draw</label>
-                        <input id="shade" name="view" type="radio">
+                        <input id="shade" class="mode" name="view" type="radio">
                         <label for="shade" onclick="">Shade</label>          
-                        <input id="color" name="view" type="radio">
+                        <input id="color" class="mode" name="view" type="radio">
                         <label for="color" onclick="">Color</label> 
                         <a></a>
                     </div> <!-- .switch-toggle-->
@@ -37,9 +39,10 @@
     </div> <!-- #frame -->
 </body>
 <script>
+    const wrapper = document.querySelector("#wrapper");
     const grid = document.querySelector("#grid");
     
-    const modes = document.querySelectorAll("input");
+    const modes = document.querySelectorAll(".mode");
     modes.forEach((mode) => {
         mode.addEventListener("click", toggleMode)
     });
@@ -66,10 +69,10 @@
                 cell.removeEventListener("mouseover", colorCell)
                 cell.addEventListener("mouseover", drawCell)
             });     
-            document.querySelector("#draw").focus();
         }
+        //document.querySelector("#draw").focus();
     }
-
+    
     function renderCells() {
         grid.style.grid  = "repeat(16, auto) / repeat(16, auto)";
         for (let i = 1; i <= Math.pow(16, 2); i++) {
@@ -120,11 +123,40 @@
             newDiv.style.backgroundColor = "#ffffff";
             grid.appendChild(newDiv);
         }
-        document.querySelector("#draw").click(); //or currently selected radio button, so mode doesn't change? 
+        modes.forEach((mode) => {
+            if (mode.checked) {
+                mode.click();
+                mode.focus();
+            }
+        });
+        frame.classList.add("animated", "shake");
+    }
+
+     const frame = document.querySelector("#frame");
+     frame.addEventListener("animationend", resetAnimation);
+
+    function resetAnimation() {
+        frame.classList.remove("animated", "shake");
+    }
+
+    // function suspendEtch() -- add pointer-events: none css to .cells on ESC key, and then remove on another event
+
+    document.addEventListener("keydown", toggleEtch);
+
+    const mouseoverDisabler = document.querySelector("#mouseover-disabler");
+    mouseoverDisabler.style.display = "none";
+
+    function toggleEtch(e) {
+        if (e.keyCode == 27) {
+            if  (mouseoverDisabler.style.display == "none") {
+                mouseoverDisabler.style.display = "block";
+            } else {
+                mouseoverDisabler.style.display ="none";
+            }
+        }
     }
 
     function colorCell(e) {
-        console.log(e);
         let cellToColor = document.querySelector(`#${e.target.id}`);
         let randomColor = Math.floor(Math.random()*16777215).toString(16);
         cellToColor.style.backgroundColor = `#${randomColor}`;
@@ -132,7 +164,6 @@
 
     function shadeCell(e) {
         let cellToShade = document.querySelector(`#${e.target.id}`);
-        console.log(cellToShade);
         let currentRGB = ((window.getComputedStyle(cellToShade, null).getPropertyValue("background-color")).slice(4, -11));
         if (currentRGB < 100) {
             currentRGB = ((window.getComputedStyle(cellToShade, null).getPropertyValue("background-color")).slice(4, -9));
