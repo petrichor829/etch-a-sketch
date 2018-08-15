@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Seth Robinson">
     <link rel="stylesheet" type="text/css" href="style.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/css-toggle-switch@latest/dist/toggle-switch.css"> 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Pacifico">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.5.2/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/css-toggle-switch@latest/dist/toggle-switch.css"> 
 </head>
 <body>
     <div id="frame">
@@ -38,10 +38,52 @@
         </div> <!-- #wrapper-->
     </div> <!-- #frame -->
 </body>
+
 <script>
+
     const wrapper = document.querySelector("#wrapper");
     const grid = document.querySelector("#grid");
+
+    function renderCellsInitial() {
+        grid.style.grid  = "repeat(16, auto) / repeat(16, auto)";
+        for (let i = 1; i <= Math.pow(16, 2); i++) {
+            let newDiv = document.createElement("div");
+            newDiv.classList.add("cells");
+            newDiv.setAttribute("id", `cell-${i}`);
+            newDiv.style.backgroundColor = "#ffffff";
+            grid.appendChild(newDiv);
+        }
+    }
     
+    renderCellsInitial();
+
+    const cells = document.querySelectorAll(".cells");
+    cells.forEach((cell) => {
+        cell.addEventListener("mouseover", drawCell)
+    });
+    
+    function drawCell(e) {
+        let cellToDraw = document.querySelector(`#${e.target.id}`);
+        cellToDraw.style.backgroundColor = "#000000";
+    }
+
+    function colorCell(e) {
+        let cellToColor = document.querySelector(`#${e.target.id}`);
+        let randomColor = Math.floor(Math.random()*16777215).toString(16);
+        cellToColor.style.backgroundColor = `#${randomColor}`;
+    }
+
+    function shadeCell(e) {
+        let cellToShade = document.querySelector(`#${e.target.id}`);
+        let currentRGB = ((window.getComputedStyle(cellToShade, null).getPropertyValue("background-color")).slice(4, -11));
+        if (currentRGB < 100) {
+            currentRGB = ((window.getComputedStyle(cellToShade, null).getPropertyValue("background-color")).slice(4, -9));
+        }
+        let newRGB = currentRGB - 25.5;
+        let shade = `rgb(${newRGB}, ${newRGB}, ${newRGB})`;
+        cellToShade.style.backgroundColor = `${shade}`;
+    }
+
     const modes = document.querySelectorAll(".mode");
     modes.forEach((mode) => {
         mode.addEventListener("click", toggleMode)
@@ -70,34 +112,7 @@
                 cell.addEventListener("mouseover", drawCell)
             });     
         }
-        //document.querySelector("#draw").focus();
     }
-    
-    function renderCells() {
-        grid.style.grid  = "repeat(16, auto) / repeat(16, auto)";
-        for (let i = 1; i <= Math.pow(16, 2); i++) {
-            let newDiv = document.createElement("div");
-            newDiv.classList.add("cells");
-            newDiv.setAttribute("id", `cell-${i}`);
-            newDiv.style.backgroundColor = "#ffffff";
-            grid.appendChild(newDiv);
-        }
-    }
-    
-    renderCells();
-
-    const cells = document.querySelectorAll(".cells");
-        cells.forEach((cell) => {
-            cell.addEventListener("mouseover", drawCell)
-        });
-
-    function drawCell(e) {
-        let cellToDraw = document.querySelector(`#${e.target.id}`);
-        cellToDraw.style.backgroundColor = "#000000";
-    }
-
-    const button = document.querySelector("#shake");
-    button.addEventListener("click", reRenderCells);
     
     function clearCells() {
         const cells = document.querySelectorAll(".cells");
@@ -106,14 +121,21 @@
         })
     }
 
-    function reRenderCells(e) {
+    const button = document.querySelector("#shake");
+    button.addEventListener("click", renderCellsToSpec);
+
+    function renderCellsToSpec(e) {
+        
         clearCells();
+       
         let gridDims = "";
         while (true) {
           if (!gridDims) {
-            gridDims = +prompt("Time to shake it up!\nLet's render a new grid. How many squares per side?", "Suggested max: 100");
+            gridDims = +prompt("Time to shake it up!\nLet's render a new grid. " +
+            "How many squares per side?", "Suggested max: 100");
           } else break;
         }
+        
         grid.style.grid  = `repeat(${gridDims}, auto) / repeat(${gridDims}, auto)`;
         let totalCells = Math.pow(gridDims, 2);
         for (let i = 1; i <= totalCells; i++) {
@@ -122,27 +144,27 @@
             newDiv.setAttribute("id", `cell-${i}`);
             newDiv.style.backgroundColor = "#ffffff";
             grid.appendChild(newDiv);
+
         }
+        
         modes.forEach((mode) => {
             if (mode.checked) {
                 mode.click();
                 mode.focus();
             }
         });
+        
         frame.classList.add("animated", "shake");
     }
 
-     const frame = document.querySelector("#frame");
-     frame.addEventListener("animationend", resetAnimation);
+    const frame = document.querySelector("#frame");
+    frame.addEventListener("animationend", resetAnimation);
 
     function resetAnimation() {
         frame.classList.remove("animated", "shake");
     }
 
-    // function suspendEtch() -- add pointer-events: none css to .cells on ESC key, and then remove on another event
-
     document.addEventListener("keydown", toggleEtch);
-
     const mouseoverDisabler = document.querySelector("#mouseover-disabler");
     mouseoverDisabler.style.display = "none";
 
@@ -156,22 +178,12 @@
         }
     }
 
-    function colorCell(e) {
-        let cellToColor = document.querySelector(`#${e.target.id}`);
-        let randomColor = Math.floor(Math.random()*16777215).toString(16);
-        cellToColor.style.backgroundColor = `#${randomColor}`;
-    }
-
-    function shadeCell(e) {
-        let cellToShade = document.querySelector(`#${e.target.id}`);
-        let currentRGB = ((window.getComputedStyle(cellToShade, null).getPropertyValue("background-color")).slice(4, -11));
-        if (currentRGB < 100) {
-            currentRGB = ((window.getComputedStyle(cellToShade, null).getPropertyValue("background-color")).slice(4, -9));
-        }
-        let newRGB = currentRGB - 25.5;
-        let shade = `rgb(${newRGB}, ${newRGB}, ${newRGB})`;
-        cellToShade.style.backgroundColor = `${shade}`;
-    }
+    document.onload = setTimeout(function () { 
+        alert("Want to reposition your cursor " + 
+        "and/or change mode without leaving a trail? " +
+        "You can suspend etching by pressing the ESC key. " +
+        "Press it again to resume etching at the cursor's current location.");
+    }, 3000);
 
 </script>
 </html>
