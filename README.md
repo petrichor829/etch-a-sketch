@@ -2,6 +2,8 @@
 
 An interactive throwback to the classic 2D drawing toy, coded in vanilla JavaScript.
 
+From The Odin Project's [curriculum](https://www.theodinproject.com/courses/web-development-101/lessons/etch-a-sketch-project)
+
 ## Features
 
 - The user can toggle between three modes: "Draw" pays homage to the aluminum trail of the original; "Shade" etches progressively darker tones on each pass; and "Color" etches each cell with a random color.
